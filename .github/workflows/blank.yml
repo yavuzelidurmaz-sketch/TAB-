@@ -1,0 +1,37 @@
+name: Tabii Auto Updater
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Her 6 saatte bir çalış
+  workflow_dispatch: # Manuel çalıştırma butonu ekler
+
+permissions:
+  contents: write
+
+jobs:
+  update-playlist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Kodları Çek (Checkout)
+        uses: actions/checkout@v3
+
+      - name: Python Kurulumu
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Gerekli Kütüphaneleri Yükle
+        run: |
+          pip install requests
+
+      - name: Scripti Çalıştır
+        run: python main.py
+
+      - name: Sonuçları Kaydet (Commit & Push)
+        run: |
+          git config --global user.name "Tabii Bot"
+          git config --global user.email "bot@tabii.scraper"
+          git add playlist.m3u tabii_data.json
+          git commit -m "Playlist Güncellendi: $(date)" || exit 0
+          git push
